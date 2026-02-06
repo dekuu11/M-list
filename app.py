@@ -1,6 +1,9 @@
 import os
 from unittest import result
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
@@ -27,9 +30,9 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///database.db")
 
-# Make sure API key is set
-# if not os.environ.get("API_KEY"):
-#     raise RuntimeError("API_KEY not set")
+# API key for movie search (RapidAPI): set before running, e.g. in terminal:
+#   export RAPIDAPI_KEY=your_rapidapi_key_here
+# Or add to a .env file and load it (e.g. with python-dotenv).
 
 
 @app.after_request
@@ -54,12 +57,11 @@ def logout():
 
 @app.route("/")
 def main():
-
-    if len(session) != 1:
+    # Check if user is logged in by presence of user_id (not session length;
+    # Flask-Session can add extra keys, so len(session) != 1 when logged in)
+    if session.get("user_id") is None:
         return render_template("main.html")
-
-    else:
-        return render_template("search-mobile.html")
+    return render_template("search-mobile.html")
     
 
 
